@@ -1,0 +1,13 @@
+# handlers/main.yml
+---
+- name: Restart Apache
+  systemd:
+    name: httpd
+    state: restarted
+  when: ansible_os_family == "RedHat"
+
+- name: Reload Apache
+  systemd:
+    name: httpd
+    state: reloaded
+  when: ansible_os_family == "RedHat"

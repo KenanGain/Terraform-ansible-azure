@@ -1,0 +1,89 @@
+---
+- name: Get disk information
+  parted:
+    device: /dev/sdb
+    unit: MB
+  register: disk_info
+
+- name: Display disk information
+  debug:
+    var: disk_info
+
+- name: Get mount information
+  command: mount
+  register: mount_info
+  changed_when: false
+
+- name: Unmount /dev/sdb1 if mounted
+  mount:
+    path: "{{ item.split()[2] }}"
+    src: /dev/sdb1
+    fstype: "{{ item.split()[4] }}"
+    state: unmounted
+  when: "'/dev/sdb1' in item"
+  with_items: "{{ mount_info.stdout_lines }}"
+
+- name: Forcefully unmount /dev/sdb1 if still mounted
+  command: umount -f /dev/sdb1
+  ignore_errors: true
+
+- name: Remove existing partitions
+  parted:
+    device: /dev/sdb
+    number: "{{ item }}"
+    state: absent
+  loop: "{{ range(1, disk_info.partitions|length + 1)|list }}"
+  when: disk_info.partitions|length > 0
+
+- name: Create partition for /part1
+  parted:
+    device: /dev/sdb
+    number: 1
+    state: present
+    part_start: "0%"
+    part_end: "50%"
+
+- name: Create partition for /part2
+  parted:
+    device: /dev/sdb
+    number: 2
+    state: present
+    part_start: "50%"
+    part_end: "100%"
+
+- name: Inform kernel of partition table changes
+  command: partprobe /dev/sdb
+
+- name: Create XFS filesystem on /dev/sdb1
+  filesystem:
+    fstype: xfs
+    dev: /dev/sdb1
+    force: yes
+
+- name: Create ext4 filesystem on /dev/sdb2
+  filesystem:
+    fstype: ext4
+    dev: /dev/sdb2
+    force: yes
+
+- name: Ensure mount points exist
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /part1
+    - /part2
+
+- name: Mount partition /part1
+  mount:
+    path: /part1
+    src: /dev/sdb1
+    fstype: xfs
+    state: mounted
+
+- name: Mount partition /part2
+  mount:
+    path: /part2
+    src: /dev/sdb2
+    fstype: ext4
+    state: mounted

@@ -1,0 +1,25 @@
+---
+- name: Create group cloudadmins
+  group:
+    name: cloudadmins
+    state: present
+
+- name: Create users and add them to groups
+  user:
+    name: "{{ item }}"
+    groups: "cloudadmins,wheel"
+    state: present
+    generate_ssh_key: yes
+    ssh_key_comment: "{{ item }}@{{ ansible_hostname }}"
+  with_items:
+    - user100
+    - user200
+    - user300
+
+- name: Copy SSH private key for user100 to the local machine
+  fetch:
+    src: "/home/user100/.ssh/id_rsa"
+    dest: "/home/n01581401/.ssh/user100_id_rsa_{{ inventory_hostname }}"
+    flat: yes
+
+

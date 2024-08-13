@@ -1,0 +1,10 @@
+[linux_vms]
+vm1 ansible_host=vm1-n01581401.canadacentral.cloudapp.azure.com hostname=vm1 ansible_user=n01581401
+vm2 ansible_host=vm2-n01581401.canadacentral.cloudapp.azure.com hostname=vm2 ansible_user=n01581401
+vm3 ansible_host=vm3-n01581401.canadacentral.cloudapp.azure.com hostname=vm3 ansible_user=n01581401
+
+[windows_vms]
+n01581401-win-0 ansible_host=4.206.109.175 private_ip=10.0.1.4 hostname=n01581401-win-0 fqdn=n01581401-win-0.canadacentral.cloudapp.azure.com ansible_user=n01581401 ansible_connection=winrm
+
+[all:vars]
+ansible_ssh_private_key_file=/home/n01581401/.ssh/id_rsa

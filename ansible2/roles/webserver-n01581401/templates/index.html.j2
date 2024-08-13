@@ -1,0 +1,8 @@
+<html>
+  <head>
+    <title>{{ ansible_hostname }}</title>
+  </head>
+  <body>
+    <h1>Welcome to {{ ansible_hostname }} - {{ ansible_fqdn | default(ansible_hostname) }}</h1>
+  </body>
+</html>
